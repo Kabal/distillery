@@ -615,9 +615,14 @@ case "$1" in
         # Then, backup the packaged configs
         cp -a "$REL_DIR/sys.config" "$REL_DIR/sys.config.bak"
         cp -a "$REL_DIR/vm.args" "$REL_DIR/vm.args.bak"
-        # Then, substitute in the prepared configs
-        cp -a "$SYS_CONFIG_PATH" "$REL_DIR/sys.config"
-        cp -a "$VMARGS_PATH" "$REL_DIR/vm.args"
+        # Then, substitute in the prepared configs, 
+        # if they are not symlinks pointing to the same file.
+        if ! [ "$SYS_CONFIG_PATH" -ef "$REL_DIR/sys.config" ]; then
+            cp -a "$SYS_CONFIG_PATH" "$REL_DIR/sys.config"
+        fi
+        if ! [ "$VMARGS_PATH" -ef "$REL_DIR/vm.args" ]; then
+            cp -a "$VMARGS_PATH" "$REL_DIR/vm.args"
+        fi
         # Make sure any pre-configuration hooks are run
         run_hooks pre_configure
         # Run any pre-upgrade tasks
